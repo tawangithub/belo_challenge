@@ -8,6 +8,7 @@ import buttonHoverSound from "../assets/audio/button-hover.mp3";
 import buttonClickSound from "../assets/audio/button-click.mp3";
 import { X } from "lucide-react";
 import "./Play.css";
+import { useMetaMask } from "../Web3/useMetaMask";
 
 const modalStyles = {
   overlay: {
@@ -69,12 +70,17 @@ const Play = () => {
   const [PlaymodalIsOpen, setModalPlayIsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(null);
   const [isCalmMode, setIsCalmMode] = useState(false);
-  
+  const { account, isConnected, connectWallet } = useMetaMask();
+
   const [bgVolume, setBgVolume] = useState(
-    localStorage.getItem("bgVolume") !== null ? parseInt(localStorage.getItem("bgVolume"), 10) : 50
+    localStorage.getItem("bgVolume") !== null
+      ? parseInt(localStorage.getItem("bgVolume"), 10)
+      : 50
   );
   const [sfxVolume, setSfxVolume] = useState(
-    localStorage.getItem("sfxVolume") !== null ? parseInt(localStorage.getItem("sfxVolume"), 10) : 50
+    localStorage.getItem("sfxVolume") !== null
+      ? parseInt(localStorage.getItem("sfxVolume"), 10)
+      : 50
   );
 
   const [mutedBg, setMutedBg] = useState(false);
@@ -138,16 +144,16 @@ const Play = () => {
 
   const playHoverSound = () => {
     hoverAudioRef.current.currentTime = 0;
-    hoverAudioRef.current.play().catch((error) =>
-      console.error("Hover sound playback failed:", error)
-    );
+    hoverAudioRef.current
+      .play()
+      .catch((error) => console.error("Hover sound playback failed:", error));
   };
 
   const playClickSound = () => {
     clickAudioRef.current.currentTime = 0;
-    clickAudioRef.current.play().catch((error) =>
-      console.error("Click sound playback failed:", error)
-    );
+    clickAudioRef.current
+      .play()
+      .catch((error) => console.error("Click sound playback failed:", error));
   };
 
   const SettingopenModal = () => {
@@ -242,6 +248,20 @@ const Play = () => {
         >
           Settings
         </button>
+        <div>
+          {!isConnected && (
+            <button
+              className={`game-button ${isCalmMode ? "calm-button" : ""}`}
+              onClick={connectWallet}
+              onMouseEnter={playHoverSound}
+            >
+              {isConnected ? "Connected" : "Connect Wallet"}
+            </button>
+          )}
+        </div>
+        {isConnected && (
+          <div className="wallet-address">Your wallet address: {account}</div>
+        )}
       </div>
       <Modal
         isOpen={SettingsmodalIsOpen}
