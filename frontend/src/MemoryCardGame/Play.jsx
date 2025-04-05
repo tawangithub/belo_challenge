@@ -8,6 +8,9 @@ import buttonHoverSound from "../assets/audio/button-hover.mp3";
 import buttonClickSound from "../assets/audio/button-click.mp3";
 import { X } from "lucide-react";
 import "./Play.css";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 const modalStyles = {
   overlay: {
@@ -69,12 +72,18 @@ const Play = () => {
   const [PlaymodalIsOpen, setModalPlayIsOpen] = useState(false);
   const [difficulty, setDifficulty] = useState(null);
   const [isCalmMode, setIsCalmMode] = useState(false);
-  
+  const { openConnectModal } = useConnectModal();
+  const { isConnected, address } = useAccount();
+
   const [bgVolume, setBgVolume] = useState(
-    localStorage.getItem("bgVolume") !== null ? parseInt(localStorage.getItem("bgVolume"), 10) : 50
+    localStorage.getItem("bgVolume") !== null
+      ? parseInt(localStorage.getItem("bgVolume"), 10)
+      : 50
   );
   const [sfxVolume, setSfxVolume] = useState(
-    localStorage.getItem("sfxVolume") !== null ? parseInt(localStorage.getItem("sfxVolume"), 10) : 50
+    localStorage.getItem("sfxVolume") !== null
+      ? parseInt(localStorage.getItem("sfxVolume"), 10)
+      : 50
   );
 
   const [mutedBg, setMutedBg] = useState(false);
@@ -138,16 +147,16 @@ const Play = () => {
 
   const playHoverSound = () => {
     hoverAudioRef.current.currentTime = 0;
-    hoverAudioRef.current.play().catch((error) =>
-      console.error("Hover sound playback failed:", error)
-    );
+    hoverAudioRef.current
+      .play()
+      .catch((error) => console.error("Hover sound playback failed:", error));
   };
 
   const playClickSound = () => {
     clickAudioRef.current.currentTime = 0;
-    clickAudioRef.current.play().catch((error) =>
-      console.error("Click sound playback failed:", error)
-    );
+    clickAudioRef.current
+      .play()
+      .catch((error) => console.error("Click sound playback failed:", error));
   };
 
   const SettingopenModal = () => {
@@ -213,6 +222,27 @@ const Play = () => {
         backgroundImage: `url(${isCalmMode ? calmBackground : backgroundGif})`,
       }}
     >
+      {isConnected && (
+        // we will show the nice widget of connection via the standard rainbowkit component called "connectButton" UI
+        // after the user already connected to the wallet
+
+        // Note: the ConnectButton UI will have below behavior:
+        // 1) displaying the default connect button to allow user to click to connect if the user is not connected
+        // 2) will display widget of wallet address, chain, and disconnect button after the user is connected
+        // In this case we just want to display only the widget after the user connect (not show the default button UI
+        // of the button before connect.
+        // It is because we want to show the "connect button" at the buttom of the screen instead for the better look and feel UI)
+        <div
+          style={{
+            position: "fixed",
+            top: "10px",
+            right: "10px",
+            scale: "0.75",
+          }}
+        >
+          <ConnectButton />
+        </div>
+      )}
       <h1 className={`game-title ${isCalmMode ? "calm-title" : ""}`}>
         WonderCards
       </h1>
@@ -242,6 +272,16 @@ const Play = () => {
         >
           Settings
         </button>
+        {!isConnected && (
+          <button
+            className={`game-button ${isCalmMode ? "calm-button" : ""}`}
+            onClick={openConnectModal}
+            onMouseEnter={playHoverSound}
+          >
+            Connect Wallet
+          </button>
+        )}
+        {isConnected && <div className="wallet-address">Wallet: {address}</div>}
       </div>
       <Modal
         isOpen={SettingsmodalIsOpen}

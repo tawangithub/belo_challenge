@@ -361,3 +361,10 @@ input:checked + .slider:before {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 8px 16px rgba(0, 0, 0, 0.6);
     transform: scale(1.1);
   }
+
+  .wallet-address {
+    margin-top: 20px;
+    font-family: "Press Start 2P", sans-serif;
+    font-size: 18px;
+    color: #fff;
+  }
